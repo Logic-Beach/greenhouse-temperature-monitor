@@ -1,0 +1,16 @@
+[Unit]
+Description=ngrok tunnel for greenhouse tempwatch
+After=network-online.target tempwatch.service
+Wants=network-online.target
+Requires=tempwatch.service
+
+[Service]
+Type=simple
+User=dietpi
+# Adjust path if ngrok lives elsewhere on your DietPi image.
+ExecStart=/usr/local/bin/ngrok http 8787 --log=stdout
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
