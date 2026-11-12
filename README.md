@@ -1,6 +1,6 @@
 # Greenhouse temperature monitor
 
-A small Raspberry Pi program that watches greenhouse temperature, flips heater/fan relays, and serves a simple status page. Outdoor weather from Open-Meteo is graphed next to the greenhouse probe for comparison. The web page is display-only; it cannot change the relays.
+A small Raspberry Pi program that watches greenhouse temperature, flips heater/fan relays, and serves a simple status page. Outdoor weather from Open-Meteo is graphed next to the greenhouse probe for comparison. 
 
 ## Hardware
 
@@ -15,14 +15,14 @@ Built around a **Raspberry Pi Zero W** running **DietPi**.
 
 Wiring notes:
 
-- Power the probe from **3.3V** and ground. Do not put 5V on a data pin.
-- A bare DS18B20 needs a **4.7kΩ** pull-up between data and 3.3V.
-- The Pi only drives the relay **inputs**. Heater and fan power stay on the relay contacts.
+- Power the probe from **3.3V** and ground. 
+- A bare DS18B20 needs a **4.7kΩ** pull-up resistor between data and 3.3V. (Probe I used: https://www.amazon.com/dp/B0FLDQJ71M?th=1, has resistor in the wiring)
+- The Pi only drives the relay **inputs**. Heater and fan power are on the relay contacts. (Relay I used: https://www.amazon.com/dp/B0GR85JF68?ref=ppx_yo2ov_dt_b_fed_asin_title)
 
 ### DietPi / sensor overlays
 
 After DietPi is installed and on Wi‑Fi, enable the overlay that matches your probe, then reboot:
-
+DietPi docs: https://dietpi.com/docs/
 ```text
 # DS18B20
 dtoverlay=w1-gpio,gpiopin=4
@@ -40,7 +40,7 @@ sudo apt update
 sudo apt install -y python3-gpiozero
 ```
 
-Copy `tempwatch.py` onto the Pi (for example into `/home/dietpi/greenhouse/`).
+Copy `tempwatch.py` onto the Pi (for example into `/root/tempwatch/tempwatch.py`).
 
 ## What the code does
 
@@ -53,7 +53,7 @@ Every sample interval (default **60 seconds**):
 5. Appends a row to `tempwatch.csv`
 6. Serves the history graph and recent readings at **port 8787**
 
-Only the **greenhouse** probe temperature controls the GPIO pins. Outdoor weather is for the graph and readout only.
+NOTE: Only the **greenhouse** probe temperature controls the GPIO pins. Outdoor weather is for the graph and readout only.
 
 Edit the settings block near the top of `tempwatch.py` for pins, limits, weather location, and display timezone (default UTC−6).
 
@@ -79,8 +79,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=dietpi
-WorkingDirectory=/home/dietpi/greenhouse
-ExecStart=/usr/bin/python3 /home/dietpi/greenhouse/tempwatch.py
+WorkingDirectory=/root/tempwatch/
+ExecStart=/usr/bin/python3 /root/tempwatch/tempwatch.py
 Restart=on-failure
 RestartSec=5
 
