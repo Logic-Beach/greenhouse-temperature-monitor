@@ -804,7 +804,8 @@ def render_svg(samples):
         return (
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" role="img" '
             'aria-label="Waiting for readings.">'
-            '<text x="360" y="156" fill="#6a6558" font-size="18" text-anchor="middle">'
+            '<text x="360" y="156" fill="#666666" font-size="18" text-anchor="middle" '
+            'font-family="Courier, monospace">'
             "Waiting for readings.</text></svg>"
         )
     ordered = sorted(samples, key=lambda item: item[0])
@@ -854,11 +855,11 @@ def render_svg(samples):
         y = y_of(tick)
         label = f"{tick:.0f}" if step >= 1 else f"{tick:.1f}"
         parts.append(
-            f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" stroke="#d5d0c4"/>'
+            f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" stroke="#dddddd"/>'
         )
         parts.append(
-            f'<text x="{left - 8}" y="{y + 4:.1f}" fill="#6a6558" font-size="12" text-anchor="end">'
-            f"{html.escape(label)}</text>"
+            f'<text x="{left - 8}" y="{y + 4:.1f}" fill="#666666" font-size="12" text-anchor="end" '
+            f'font-family="Courier, monospace">{html.escape(label)}</text>'
         )
         tick += step
         guard += 1
@@ -867,26 +868,26 @@ def render_svg(samples):
         for pct in (0, 25, 50, 75, 100):
             y = y_humid(pct)
             parts.append(
-                f'<text x="{left + plot_w + 8}" y="{y + 4:.1f}" fill="#7a7568" font-size="11">'
-                f"{pct}%</text>"
+                f'<text x="{left + plot_w + 8}" y="{y + 4:.1f}" fill="#888888" font-size="11" '
+                f'font-family="Courier, monospace">{pct}%</text>'
             )
 
-    for limit, color in ((COLD_ON_F, "#2f5d9f"), (HOT_ON_F, "#b1432a")):
+    for limit, color in ((COLD_ON_F, "#0000cc"), (HOT_ON_F, "#cc0000")):
         y = y_of(limit)
         parts.append(
             f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" '
             f'stroke="{color}" stroke-dasharray="4 4"/>'
         )
         parts.append(
-            f'<text x="{left + 6}" y="{y - 6:.1f}" fill="{color}" font-size="12">'
-            f"{html.escape(fmt_f(limit))}°</text>"
+            f'<text x="{left + 6}" y="{y - 6:.1f}" fill="{color}" font-size="12" '
+            f'font-family="Courier, monospace">{html.escape(fmt_f(limit))}°</text>'
         )
 
     legend_x = left
     for color, label in (
-        ("#2f6b3a", "Greenhouse °F"),
-        ("#7a7568", "Outside °F"),
-        ("#a39e90", "Outside RH"),
+        ("#000000", "Greenhouse °F"),
+        ("#888888", "Outside °F"),
+        ("#bbbbbb", "Outside RH"),
     ):
         if label.startswith("Outside °F") and not out_temps:
             continue
@@ -894,43 +895,43 @@ def render_svg(samples):
             continue
         parts.append(
             f'<rect x="{legend_x:.1f}" y="8" width="12" height="3" fill="{color}"/>'
-            f'<text x="{legend_x + 16:.1f}" y="12" fill="#4a463c" font-size="11">'
-            f"{html.escape(label)}</text>"
+            f'<text x="{legend_x + 16:.1f}" y="12" fill="#000000" font-size="11" '
+            f'font-family="Courier, monospace">{html.escape(label)}</text>'
         )
         legend_x += 118
 
     greenhouse = [(item[0], item[1]) for item in points]
     coords = "".join(f"{x_of(ts):.1f},{y_of(temp):.1f} " for ts, temp in greenhouse)
     parts.append(
-        f'<polyline points="{coords.strip()}" fill="none" stroke="#2f6b3a" stroke-width="2.2" '
+        f'<polyline points="{coords.strip()}" fill="none" stroke="#000000" stroke-width="2" '
         'stroke-linejoin="round" stroke-linecap="round"/>'
     )
     last_x = x_of(greenhouse[-1][0])
     last_y = y_of(greenhouse[-1][1])
-    parts.append(f'<circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.5" fill="#2f6b3a"/>')
+    parts.append(f'<circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.5" fill="#000000"/>')
 
     outside = _series_points(points, 2)
     if len(outside) >= 2:
         coords = "".join(f"{x_of(ts):.1f},{y_of(temp):.1f} " for ts, temp in outside)
         parts.append(
-            f'<polyline points="{coords.strip()}" fill="none" stroke="#7a7568" stroke-width="2" '
+            f'<polyline points="{coords.strip()}" fill="none" stroke="#888888" stroke-width="2" '
             'stroke-linejoin="round" stroke-linecap="round"/>'
         )
         parts.append(
             f'<circle cx="{x_of(outside[-1][0]):.1f}" cy="{y_of(outside[-1][1]):.1f}" '
-            'r="3.5" fill="#7a7568"/>'
+            'r="3.5" fill="#888888"/>'
         )
 
     humid_pts = _series_points(points, 3)
     if len(humid_pts) >= 2:
         coords = "".join(f"{x_of(ts):.1f},{y_humid(pct):.1f} " for ts, pct in humid_pts)
         parts.append(
-            f'<polyline points="{coords.strip()}" fill="none" stroke="#a39e90" stroke-width="1.5" '
+            f'<polyline points="{coords.strip()}" fill="none" stroke="#bbbbbb" stroke-width="1.5" '
             'stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>'
         )
         parts.append(
             f'<circle cx="{x_of(humid_pts[-1][0]):.1f}" cy="{y_humid(humid_pts[-1][1]):.1f}" '
-            'r="3" fill="#a39e90"/>'
+            'r="3" fill="#bbbbbb"/>'
         )
 
     span = max(1.0, t1 - t0)
@@ -940,8 +941,8 @@ def render_svg(samples):
         x = left if index == 0 else left + plot_w if index == 2 else left + plot_w * slot
         label = fmt_clock(ts, "%H:%M")
         parts.append(
-            f'<text x="{x:.1f}" y="{height - 8}" fill="#6a6558" font-size="12" text-anchor="{anchor}">'
-            f"{html.escape(label)}</text>"
+            f'<text x="{x:.1f}" y="{height - 8}" fill="#666666" font-size="12" text-anchor="{anchor}" '
+            f'font-family="Courier, monospace">{html.escape(label)}</text>'
         )
     summary = (
         f"Greenhouse temperature. Low {min(temps):.1f} degrees F, "
@@ -975,33 +976,6 @@ def graph_note(samples):
     return note
 
 
-def render_rows(samples):
-    if not samples:
-        return '<tr><td colspan="8">No readings yet.</td></tr>'
-    rows = []
-    for row in reversed(samples[-12:]):
-        ts, temp_f, temp_c, humidity, cold_on, hot_on = row[:6]
-        out_temp_f = row[6] if len(row) > 6 else None
-        out_humidity = row[7] if len(row) > 7 else None
-        humid = "—" if humidity is None else f"{humidity:.0f}%"
-        out_temp = "—" if out_temp_f is None else f"{out_temp_f:.1f}"
-        out_humid = "—" if out_humidity is None else f"{out_humidity:.0f}%"
-        clock = fmt_clock(ts, "%b %d %H:%M:%S")
-        rows.append(
-            "<tr>"
-            f"<td>{html.escape(clock)}</td>"
-            f"<td>{temp_f:.1f}</td>"
-            f"<td>{temp_c:.1f}</td>"
-            f"<td>{html.escape(humid)}</td>"
-            f"<td>{html.escape(out_temp)}</td>"
-            f"<td>{html.escape(out_humid)}</td>"
-            f"<td>{'on' if cold_on else 'off'}</td>"
-            f"<td>{'on' if hot_on else 'off'}</td>"
-            "</tr>"
-        )
-    return "".join(rows)
-
-
 SETUP_HTML = """
 <section class="setup">
   <h2>The sensor is not showing up</h2>
@@ -1015,139 +989,99 @@ SETUP_HTML = """
 """
 
 CSS = """
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,500;6..72,700&display=swap");
 :root {
   color-scheme: light;
-  --paper: #e8e2d4;
-  --paper-2: #ddd5c4;
-  --ink: #1f2418;
-  --mute: #5c584c;
-  --rule: #b7b09e;
-  --leaf: #2f6b3a;
-  --soil: #7a7568;
-  --cold: #2f5d9f;
-  --hot: #b1432a;
-  --warn: #6b4a12;
+  --ink: #000000;
+  --mute: #666666;
+  --line: #cccccc;
+  --bg: #ffffff;
+  --cold: #0000cc;
+  --hot: #cc0000;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
   color: var(--ink);
-  font: 16px/1.5 "IBM Plex Mono", "Cascadia Mono", monospace;
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(90deg, rgba(47, 107, 58, 0.035) 1px, transparent 1px),
-    linear-gradient(rgba(47, 107, 58, 0.035) 1px, transparent 1px),
-    radial-gradient(1200px 520px at 100% -10%, rgba(177, 67, 42, 0.08), transparent 50%),
-    linear-gradient(165deg, #efe9db 0%, var(--paper) 42%, #d9d1bf 100%);
-  background-size: 28px 28px, 28px 28px, auto, auto;
+  background: var(--bg);
+  font: 16px/1.45 Courier, "Courier New", monospace;
 }
 main {
   max-width: 860px;
   margin: 0 auto;
-  padding: 36px 20px 64px;
+  padding: 24px 16px 48px;
 }
 h1, h2, p { margin: 0; }
-h1 {
-  font-family: "Newsreader", "Iowan Old Style", "Palatino Linotype", serif;
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-}
-h2 {
-  font-family: "Newsreader", "Iowan Old Style", "Palatino Linotype", serif;
-  font-size: 1.35rem;
-  font-weight: 500;
-}
+h1 { font-size: 28px; font-weight: 700; }
+h2 { font-size: 18px; font-weight: 700; margin: 24px 0 10px; }
 .mast {
   display: grid;
   grid-template-columns: 1.4fr 0.8fr;
-  gap: 18px 28px;
+  gap: 12px 20px;
   align-items: end;
-  margin-bottom: 28px;
-  padding-bottom: 18px;
-  border-bottom: 2px solid var(--ink);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink);
 }
 .mast .tag {
   color: var(--mute);
-  font-size: 0.78rem;
+  font-size: 13px;
   max-width: 16rem;
   justify-self: end;
   text-align: right;
 }
 .banner {
-  margin: 0 0 18px;
-  padding: 10px 0;
-  border-top: 1px solid var(--warn);
-  border-bottom: 1px solid var(--warn);
-  color: var(--warn);
+  margin: 0 0 14px;
+  padding: 8px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
 }
 .setup {
-  margin: 0 0 22px;
-  padding: 14px 0 4px;
-  border-top: 1px dashed var(--rule);
+  margin: 0 0 18px;
+  padding: 12px 0 4px;
+  border-top: 1px dashed var(--line);
 }
 .setup p { margin-top: 8px; }
 .kicker {
-  margin: 14px 0 4px;
+  margin: 12px 0 4px;
   color: var(--mute);
-  font-size: 0.72rem;
+  font-size: 13px;
 }
 code {
   display: block;
   margin-top: 4px;
   padding: 8px 10px;
-  background: rgba(31, 36, 24, 0.06);
-  border-left: 3px solid var(--leaf);
+  border: 1px solid var(--line);
   overflow-x: auto;
+  font: inherit;
 }
 .readout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 10px 28px;
-  margin: 8px 0 26px;
-  padding: 8px 0 22px;
-  border-bottom: 1px solid var(--rule);
+  gap: 8px 24px;
+  margin: 8px 0 20px;
+  padding: 4px 0 16px;
+  border-bottom: 1px solid var(--line);
 }
 .readout .temp {
   grid-row: span 4;
   align-self: start;
-  font-family: "Newsreader", "Iowan Old Style", "Palatino Linotype", serif;
-  font-size: clamp(5rem, 18vw, 7.5rem);
+  font-size: 72px;
   font-weight: 700;
-  line-height: 0.88;
-  letter-spacing: -0.04em;
+  line-height: 0.9;
   font-variant-numeric: tabular-nums;
 }
 .readout.wait .temp { color: var(--mute); }
-.readout.cold .temp { color: var(--cold); }
-.readout.hot .temp { color: var(--hot); }
-.readout.ok .temp { color: var(--leaf); }
+.readout.cold .temp, .readout.cold .status, .pin.cold strong { color: var(--cold); }
+.readout.hot .temp, .readout.hot .status, .pin.hot strong { color: var(--hot); }
 .temp span {
-  font-size: 0.28em;
-  margin-left: 0.12em;
+  font-size: 0.3em;
+  margin-left: 4px;
   color: var(--mute);
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 400;
-  letter-spacing: 0;
   vertical-align: super;
 }
-.celsius, .humid, .outdoor, .status, .when {
-  color: var(--mute);
-  font-variant-numeric: tabular-nums;
-}
-.outdoor { color: var(--soil); }
-.status {
-  margin-top: 4px;
-  color: var(--ink);
-  font-weight: 600;
-}
-.readout.cold .status { color: var(--cold); }
-.readout.hot .status { color: var(--hot); }
-.readout.ok .status { color: var(--leaf); }
-.when { margin-top: 2px; font-size: 0.85rem; }
-.quiet, .note { color: var(--mute); }
+.celsius, .humid, .outdoor, .when, .quiet, .note { color: var(--mute); }
+.status { margin-top: 4px; color: var(--ink); font-weight: 700; }
+.when { margin-top: 2px; font-size: 14px; }
 .pins {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1156,73 +1090,40 @@ code {
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
 }
-.pin {
-  margin: 0;
-  padding: 14px 16px 16px 0;
-}
+.pin { margin: 0; padding: 12px 14px 14px 0; }
 .pin + .pin {
-  padding-left: 16px;
-  border-left: 1px solid var(--rule);
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
 }
 .pin strong {
   display: block;
   margin-bottom: 6px;
-  font-family: "Newsreader", serif;
-  font-size: 1.15rem;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
 }
-.pin.cold strong { color: var(--cold); }
-.pin.hot strong { color: var(--hot); }
-.pin.on.cold { background: linear-gradient(90deg, rgba(47, 93, 159, 0.08), transparent 70%); }
-.pin.on.hot { background: linear-gradient(90deg, rgba(177, 67, 42, 0.08), transparent 70%); }
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin: 28px 0 12px;
+  margin: 24px 0 10px;
 }
+.section-head h2 { margin: 0; }
 .graph {
-  padding: 8px 0 4px;
-  background: rgba(255, 252, 245, 0.55);
-  border: 1px solid var(--rule);
+  padding: 4px 0;
+  border: 1px solid var(--line);
 }
 .graph svg { width: 100%; height: auto; display: block; }
-.graph svg text { font-family: "IBM Plex Mono", monospace; }
-.note { margin-top: 10px; font-size: 0.88rem; }
+.graph svg text { font-family: Courier, "Courier New", monospace; }
+.note { margin-top: 8px; font-size: 14px; }
 .csv {
   color: var(--ink);
   text-decoration: underline;
-  text-underline-offset: 3px;
-  font-weight: 600;
 }
-.csv:hover { color: var(--leaf); }
 .csv:focus-visible, a:focus-visible {
-  outline: 2px solid var(--leaf);
-  outline-offset: 3px;
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
 }
-.table-wrap {
-  overflow-x: auto;
-  margin-top: 8px;
-  border-top: 1px solid var(--ink);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.92rem;
-}
-th, td {
-  text-align: left;
-  padding: 9px 14px 9px 0;
-  white-space: nowrap;
-}
-th {
-  color: var(--mute);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-td { border-top: 1px solid var(--rule); }
 @media (max-width: 700px) {
   .mast, .readout, .pins { grid-template-columns: 1fr; }
   .mast .tag, .pin + .pin {
@@ -1230,10 +1131,9 @@ td { border-top: 1px solid var(--rule); }
     text-align: left;
     padding-left: 0;
     border-left: 0;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--line);
   }
-  .readout .temp { grid-row: auto; font-size: 4.6rem; }
-  main { padding: 24px 14px 48px; }
+  .readout .temp { grid-row: auto; font-size: 56px; }
 }
 """
 
@@ -1335,22 +1235,6 @@ def render_page(state):
     </div>
     <div class="graph">{render_svg(samples)}</div>
     <p class="note">{html.escape(graph_note(samples))}</p>
-  </section>
-  <section>
-    <div class="section-head">
-      <h2>Recent readings</h2>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th><th>Greenhouse °F</th><th>Greenhouse °C</th><th>Greenhouse RH</th>
-            <th>Outside °F</th><th>Outside RH</th><th>Cold</th><th>Hot</th>
-          </tr>
-        </thead>
-        <tbody>{render_rows(samples)}</tbody>
-      </table>
-    </div>
   </section>
 </main>
 </body>
