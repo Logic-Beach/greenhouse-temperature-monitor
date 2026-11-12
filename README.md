@@ -51,7 +51,7 @@ Every sample interval (default **60 seconds**):
 3. Turns the **hot** relay on at **110°F** or above, and off after the temperature falls by the hysteresis gap
 4. Fetches outdoor temperature and humidity from Open-Meteo for your lat/lon
 5. Appends a row to `tempwatch.csv`
-6. Serves the history graph at **port 8787**
+6. Serves the history graph and recent readings at **port 8787**
 
 NOTE: Only the **greenhouse** probe temperature controls the GPIO pins. Outdoor weather is for the graph and readout only.
 
